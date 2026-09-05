@@ -3,9 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hello World</title>
+<title>Гучуа Давид — история лечения / Treatment History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1b2321;
+    --paper: #f4f2ec;
+    --line: #d8d3c6;
+    --accent: #7a3b3b;
+    --muted: #6b6558;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Roboto", Arial, sans-serif;
+    line-height: 1.5;
+    padding: 6vh 6vw;
+  }
+
+  .sheet {
+    max-width: 680px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 48px 44px;
+    position: relative;
+  }
+
+  .lang-toggle {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.8rem;
+  }
+
+  .lang-toggle button {
+    border: none;
+    background: #fff;
+    color: var(--muted);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .lang-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+    font-weight: 500;
+  }
+
+  .diagnosis {
+    margin-top: 6px;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  .rule {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 26px 0;
+  }
+
+  h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  td {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  td.year {
+    width: 70px;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  footer {
+    margin-top: 32px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+  }
+
+  [data-lang="en"] { display: none; }
+
+  body.lang-en [data-lang="ru"] { display: none; }
+  body.lang-en [data-lang="en"] { display: block; }
+  body.lang-en td[data-lang="en"] { display: table-cell; }
+  body.lang-en td[data-lang="ru"] { display: none; }
+
+  @media (max-width: 480px) {
+    body { padding: 4vh 4vw; }
+    .sheet { padding: 32px 24px; }
+    .lang-toggle { position: static; margin-bottom: 20px; width: fit-content; }
+  }
+</style>
 </head>
 <body>
-  <h1>Hello, World!</h1>
+
+  <main class="sheet">
+    <div class="lang-toggle">
+      <button id="btn-ru" class="active" onclick="setLang('ru')">RU</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+
+    <h1 data-lang="ru">Гучуа Давид</h1>
+    <h1 data-lang="en">David Guchua</h1>
+    <div class="diagnosis" data-lang="ru">Лимфома Ходжкина, вариант с нодулярным склерозом</div>
+    <div class="diagnosis" data-lang="en">Hodgkin lymphoma, nodular sclerosis subtype</div>
+
+    <hr class="rule">
+
+    <h2 data-lang="ru">История лечения</h2>
+    <h2 data-lang="en">Treatment History</h2>
+
+    <table>
+      <tr><td class="year">2003</td><td data-lang="ru">BEACOPP</td><td data-lang="en">BEACOPP</td></tr>
+      <tr><td class="year">2004</td><td data-lang="ru">Лучевая терапия</td><td data-lang="en">Radiation</td></tr>
+      <tr><td class="year">2006</td><td data-lang="ru">DIZE</td><td data-lang="en">DIZE</td></tr>
+      <tr><td class="year">2006</td><td data-lang="ru">IGEV</td><td data-lang="en">IGEV</td></tr>
+      <tr><td class="year">2006</td><td data-lang="ru">Dexa-BEAM + трансплантация</td><td data-lang="en">Dexa-BEAM + Transplantation</td></tr>
+      <tr><td class="year">2007</td><td data-lang="ru">Velcade</td><td data-lang="en">Velcade</td></tr>
+      <tr><td class="year">2007</td><td data-lang="ru">ICE + трансплантация</td><td data-lang="en">ICE + Transplantation</td></tr>
+      <tr><td class="year">2007</td><td data-lang="ru">Лучевая терапия</td><td data-lang="en">Radiation</td></tr>
+      <tr><td class="year">2008</td><td data-lang="ru">Procarbazine + Vinblastine</td><td data-lang="en">Procarbazine + Vinblastine</td></tr>
+      <tr><td class="year">2008</td><td data-lang="ru">Avastin</td><td data-lang="en">Avastin</td></tr>
+      <tr><td class="year">2008</td><td data-lang="ru">Дендритно-клеточная вакцина</td><td data-lang="en">Dendritic Cell Vaccine</td></tr>
+      <tr><td class="year">2011</td><td data-lang="ru">Revlimid</td><td data-lang="en">Revlimid</td></tr>
+      <tr><td class="year">2011</td><td data-lang="ru">Bendamustine</td><td data-lang="en">Bendamustine</td></tr>
+      <tr><td class="year">2012</td><td data-lang="ru">Afinitor</td><td data-lang="en">Afinitor</td></tr>
+      <tr><td class="year">2013</td><td data-lang="ru">Adcetris</td><td data-lang="en">Adcetris</td></tr>
+      <tr><td class="year">2014</td><td data-lang="ru">Revlimid</td><td data-lang="en">Revlimid</td></tr>
+      <tr><td class="year">2015</td><td data-lang="ru">Revlimid + Bendamustine</td><td data-lang="en">Revlimid + Bendamustine</td></tr>
+      <tr><td class="year">2015</td><td data-lang="ru">Vorinostat + Sirolimus</td><td data-lang="en">Vorinostat + Sirolimus</td></tr>
+      <tr><td class="year">2016</td><td data-lang="ru">Adcetris</td><td data-lang="en">Adcetris</td></tr>
+      <tr><td class="year">2016</td><td data-lang="ru">Adcetris + Bendamustine</td><td data-lang="en">Adcetris + Bendamustine</td></tr>
+      <tr><td class="year">2016</td><td data-lang="ru">Adcetris</td><td data-lang="en">Adcetris</td></tr>
+      <tr><td class="year">2017</td><td data-lang="ru">Nivolumab</td><td data-lang="en">Nivolumab</td></tr>
+      <tr><td class="year">2017</td><td data-lang="ru">Bendamustine + Adcetris</td><td data-lang="en">Bendamustine + Adcetris</td></tr>
+      <tr><td class="year">2017</td><td data-lang="ru">Bendamustine</td><td data-lang="en">Bendamustine</td></tr>
+    </table>
+
+    <footer>
+      <span data-lang="ru">Для связи: </span><span data-lang="en">Contact: </span><a href="mailto:suetekh@gmail.com">suetekh@gmail.com</a>
+      <div style="margin-top: 10px; font-size: 0.78rem; color: var(--muted);">
+        <span data-lang="ru">Страница создана: </span><span data-lang="en">Page created: </span>2026-09-05 15:41 UTC
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    function setLang(lang) {
+      document.body.classList.toggle('lang-en', lang === 'en');
+      document.documentElement.lang = lang;
+      document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    }
+  </script>
+
 </body>
 </html>
