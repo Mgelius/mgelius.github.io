@@ -1,0 +1,724 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Экотропы СПб</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one large pannable and zoomable schematic map (sticky) beside filterable trail cards; tooltips on hover; stacked on phones. */
+:root {
+  --bg: #edf1ec;
+  --surface: #f8faf7;
+  --ink: #16251e;
+  --muted: #55665d;
+  --line: #cbd6cd;
+  --accent: #2b6a4d;
+  --on-accent: #ffffff;
+  --water: #cde0e4;
+  --land: #e3eae1;
+  --warn: #7a4e0c;
+  --warn-bg: #f6e9cf;
+  --nature: #a3601a;
+  --park: #3a5fa6;
+  --font-display: "Geologica", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1713;
+    --surface: #16211b;
+    --ink: #e4ede6;
+    --muted: #9aaea2;
+    --line: #2a3b31;
+    --accent: #6fc39b;
+    --on-accent: #0f1713;
+    --water: #1b2f36;
+    --land: #14201a;
+    --warn: #e0b66a;
+    --warn-bg: #3a2c12;
+    --nature: #e0a458;
+    --park: #8fb6ee;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1713;
+  --surface: #16211b;
+  --ink: #e4ede6;
+  --muted: #9aaea2;
+  --line: #2a3b31;
+  --accent: #6fc39b;
+  --on-accent: #0f1713;
+  --water: #1b2f36;
+  --land: #14201a;
+  --warn: #e0b66a;
+  --warn-bg: #3a2c12;
+  --nature: #e0a458;
+  --park: #8fb6ee;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1480px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(24px, 4vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 500; font-size: 17px; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); }
+.lead { color: var(--muted); max-width: 70ch; }
+.contrib { max-width: 70ch; font-size: 14px; }
+.contrib button { font: inherit; font-size: 12.5px; margin-left: 6px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.contrib button:hover { border-color: var(--accent); }
+.contrib button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#copyNote { margin-left: 8px; font-size: 12.5px; color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 10px 0; border-block: 1px solid var(--line); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.seg label { cursor: pointer; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: inline-block; padding: 5px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); font-size: 13.5px; }
+.seg input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.seg input:focus-visible + span, .check input:focus-visible, select:focus-visible, .btn:focus-visible, .card:focus-visible, .pin:focus-visible, .tools button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13.5px; }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; }
+select { font: inherit; font-size: 13.5px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px; }
+.count { margin-left: auto; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.mapcol { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.mapbox { position: relative; border: 1px solid var(--line); border-radius: 6px; background: var(--land); overflow: hidden; }
+#map { display: block; width: 100%; height: clamp(440px, calc(100vh - 150px), 900px); cursor: grab; touch-action: none; user-select: none; }
+#map.drag { cursor: grabbing; }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tools button { font: inherit; font-size: 13px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); cursor: pointer; min-width: 32px; }
+.tools button:hover { border-color: var(--accent); }
+.legend { margin-left: auto; font-size: 12.5px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--accent); vertical-align: -1px; margin-right: 5px; }
+.legend i.c-trail { background: var(--accent); }
+.legend i.c-nature { background: var(--nature); border-color: var(--nature); }
+.legend i.c-park { background: var(--park); border-color: var(--park); }
+.legend i.hollow { background: var(--surface); border-style: dashed; }
+.mapnote { font-size: 12.5px; color: var(--muted); }
+.pin { cursor: pointer; outline: none; }
+.pin .dot { fill: var(--accent); stroke: var(--surface); }
+.pin.cat-nature .dot { fill: var(--nature); }
+.pin.cat-park .dot { fill: var(--park); }
+.pin.approx .dot { fill: var(--surface); stroke: var(--accent); }
+.pin.approx.cat-nature .dot { stroke: var(--nature); }
+.pin.approx.cat-park .dot { stroke: var(--park); }
+.pin .ring { fill: none; stroke: transparent; }
+.pin.hov .ring, .pin.sel .ring { stroke: var(--ink); }
+.pin.sel .dot, .pin.sel.approx .dot, .pin.sel.approx.cat-nature .dot, .pin.sel.approx.cat-park .dot { fill: var(--ink); stroke: var(--surface); }
+.pin.off { opacity: 0.2; }
+.pin:focus-visible .ring { stroke: var(--accent); }
+.svgtext { font-family: var(--font-body); fill: var(--ink); paint-order: stroke; stroke: var(--land); stroke-linejoin: round; pointer-events: none; }
+.svgmuted { font-family: var(--font-body); fill: var(--muted); font-style: italic; pointer-events: none; }
+.tip { position: absolute; z-index: 5; width: 270px; max-width: calc(100% - 16px); background: var(--surface); color: var(--ink); border: 1px solid var(--accent); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; font-size: 13px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); }
+.tip strong { font-family: var(--font-display); font-weight: 500; font-size: 14.5px; line-height: 1.25; }
+.tip .meta { color: var(--muted); font-size: 12px; }
+.tip .btn { align-self: flex-start; padding: 4px 10px; font-size: 13px; }
+.list { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; scroll-margin-top: 12px; }
+.card.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.card header { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; justify-content: space-between; }
+.place { color: var(--muted); font-size: 13px; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.facts b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 12px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); }
+.warn { font-size: 13px; background: var(--warn-bg); color: var(--warn); padding: 6px 10px; border-radius: 4px; }
+.how { font-size: 13.5px; color: var(--muted); }
+.how b { color: var(--ink); font-weight: 600; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { display: inline-block; font-size: 13.5px; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--line); text-decoration: none; color: var(--ink); background: var(--surface); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.empty { padding: 28px 8px; color: var(--muted); }
+.sources { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.sources ul { margin: 0; padding-left: 18px; }
+@media (max-width: 959px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .mapcol { position: static; }
+  #map { height: clamp(380px, 62vh, 640px); }
+  .count { margin-left: 0; width: 100%; }
+  .legend { margin-left: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <h1>Экотропы Петербурга и Ленобласти</h1>
+    <p class="lead">Экотропы, памятники природы и большие парки Петербурга и Ленобласти на одной карте. Наведите курсор на точку, чтобы увидеть описание и кнопку для Яндекс Карт. Карту можно двигать мышью и увеличивать колесом.</p>
+    <p class="contrib">Хотите дополнить карту? Пришлите название места, координаты или ссылку на Яндекс Карты на адрес <a href="mailto:suetekh@gmail.com" id="mailAddr">suetekh@gmail.com</a>
+      <button type="button" id="copyMail">Скопировать адрес</button><span id="copyNote" aria-live="polite"></span></p>
+  </div>
+
+  <div class="controls" role="group" aria-label="Фильтры">
+    <div class="seg" id="catSeg" role="radiogroup" aria-label="Тип места">
+      <label><input type="radio" name="cat" value="all" checked><span>Все места</span></label>
+      <label><input type="radio" name="cat" value="trail"><span>Экотропы</span></label>
+      <label><input type="radio" name="cat" value="nature"><span>Памятники природы</span></label>
+      <label><input type="radio" name="cat" value="park"><span>Парки</span></label>
+    </div>
+    <div class="seg" id="lenSeg" role="radiogroup" aria-label="Длина тропы">
+      <label><input type="radio" name="len" value="all" checked><span>Любая длина</span></label>
+      <label><input type="radio" name="len" value="short"><span>до 5 км</span></label>
+      <label><input type="radio" name="len" value="mid"><span>5–15 км</span></label>
+      <label><input type="radio" name="len" value="long"><span>от 15 км</span></label>
+    </div>
+    <label class="check"><input type="checkbox" id="fBench">Со скамейками</label>
+    <label class="check"><input type="checkbox" id="fRail">Рядом с электричкой</label>
+    <label class="check">Сортировка
+      <select id="sort"><option value="dist">по расстоянию от центра</option><option value="len">по длине</option></select>
+    </label>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+
+  <div class="layout">
+    <div class="mapcol">
+      <div class="mapbox" id="mapbox">
+        <svg id="map" role="img" aria-label="Схема расположения экотроп относительно Санкт-Петербурга"></svg>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="tools">
+        <button type="button" id="zIn" aria-label="Приблизить">+</button>
+        <button type="button" id="zOut" aria-label="Отдалить">−</button>
+        <button type="button" data-view="all">Весь регион</button>
+        <button type="button" data-view="isthmus">Карельский перешеек</button>
+        <button type="button" data-view="spb">Вокруг Петербурга и Гатчина</button>
+        <span class="legend"><span><i class="c-trail"></i>экотропа</span><span><i class="c-nature"></i>памятник природы</span><span><i class="c-park"></i>парк</span><span><i class="hollow"></i>примерная отметка</span></span>
+      </div>
+      <p class="mapnote">Схема без подложки: показаны Финский залив, Ладога и крупные города. Точный маршрут открывается в Яндекс Картах.</p>
+    </div>
+    <div class="list" id="list"></div>
+  </div>
+
+  <div class="sources">
+    <p>Длина и описания собраны из нескольких публикаций и местами расходятся. У многих мест источники не давали координат, их отметки примерные (пустой кружок): по ссылке откроется поиск по названию. Точные координаты есть у большинства экотроп, Дудергофских высот, Приоратского парка, «Сосновки», Юнтоловского и Кургальского заказников, у Лемболовской возвышенности и горы Кивисюрья. У больших территорий отметка стоит в центре. Перед выездом проверьте погоду и состояние настилов.</p>
+    <ul>
+      <li><a href="https://travelto.ru/blog/ekotropy-spb-i-lenoblasti/">Travelto: экотропы СПб и Ленобласти</a></li>
+      <li><a href="https://snob.ru/travel/vse-skhoditsia-7-ekotrop-sankt-peterburga-i-leningradskoi-oblasti/">Сноб: 7 экотроп Санкт-Петербурга и Ленобласти</a></li>
+      <li><a href="https://www.dp.ru/a/2025/05/06/ozjora--kami-i-torfjaniki-samie">Деловой Петербург: экомаршруты Ленобласти</a></li>
+      <li><a href="https://peterburg2.ru/restplaces/vybor/parki-ekotorpi/area/74/1/2/">peterburg2.ru: экотропы Выборгского района</a></li>
+      <li><a href="https://ooptlo.ru/pdf_files/Колтушские высоты.pdf">ООПТ Ленобласти: Колтушские высоты</a></li>
+      <li>Википедия: <a href="https://ru.wikipedia.org/wiki/Колтушская_возвышенность">Колтушская возвышенность</a>, <a href="https://ru.wikipedia.org/wiki/Дудергофские_высоты">Дудергофские высоты</a>, <a href="https://ru.wikipedia.org/wiki/Приоратский_парк">Приоратский парк</a>, <a href="https://ru.wikipedia.org/wiki/Лемболовская_возвышенность">Лемболовская возвышенность</a>, <a href="https://ru.wikipedia.org/wiki/Юнтоловский_заказник">Юнтоловский заказник</a>, <a href="https://ru.wikipedia.org/wiki/Сосновка_(парк)">Сосновка</a>, <a href="https://ru.wikipedia.org/wiki/Кургальский_заказник">Кургальский заказник</a>, <a href="https://ru.wikipedia.org/wiki/Токсово">Токсово</a></li>
+      <li><a href="https://101hotels.com/recreation/russia/sankt-peterburg/points/ecotrope">101hotels: каталог экотроп</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+var PSP = { lat: 59.9343, lon: 30.3351 };
+var TRAILS = [
+  { id: "komarovo", name: "Комаровский берег", place: "Курортный район, СПб", lat: 60.180341, lon: 29.790685, lenMin: 2.8, lenMax: 2.8, lenText: "2,8 км", time: "около 1 ч", benches: true, rail: "Комарово",
+    short: "Хвойный лес вдоль залива, 2,8 км, скамейки и беседка.",
+    how: "Электричка с Финляндского вокзала до Комарово, дальше около 1 км пешком по ул. Морской. Машину оставляйте вдоль Приморского шоссе: на самой ул. Морской парковка запрещена.",
+    desc: "Короткая тропа по хвойному лесу вдоль залива: дюны, старые пруды возле бывшей виллы, скамейки и беседка. Есть деревянные настилы, у пляжа летом работает туалет.",
+    tags: ["скамейки", "беседка", "туалет летом"],
+    ymap: "https://yandex.ru/maps/org/peshekhodny_ekologicheskiy_marshrut_komarovskiy_bereg/190187270549/?ll=29.790685%2C60.180341&z=15" },
+  { id: "shuchye", name: "Щучье озеро", place: "Курортный район, СПб", lat: 60.194472, lon: 29.8066, lenMin: 14, lenMax: 14, lenText: "около 14 км", time: "2–3 ч", benches: true, rail: "Комарово",
+    short: "Ровная дорога вокруг озера, около 14 км, подходит для коляски и велосипеда.",
+    how: "Электричка до Комарово, дальше пешком около 3 км.",
+    desc: "Кольцо вокруг озера в заказнике рядом с Комарово. Дорога ровная и широкая, подходит для коляски и велосипеда, вдоль неё скамейки и беседки. По пути дача Ахматовой и Комаровское кладбище.",
+    tags: ["скамейки", "беседки", "для велосипеда"] },
+  { id: "sestroretsk", name: "Сестрорецкое болото", place: "Курортный район, СПб", lat: 60.125092, lon: 30.002196, lenMin: 3.5, lenMax: 3.5, lenText: "3,5 км", time: "около 1,5 ч", benches: false, rail: "Белоостров",
+    short: "Настил по болоту, 3,5 км, без скамеек, красивые закаты.",
+    how: "Электричка до Белоострова, дальше около 2 км пешком. На машине по Приморскому шоссе до съезда на Белоостров.",
+    desc: "Настил идёт прямо по болоту: кочки, редкие сосны, широкие виды, особенно красиво на закате. Скамеек и беседок нет, лучше идти налегке.",
+    tags: ["настилы", "без скамеек"],
+    ymap: "https://yandex.ru/maps/org/peshekhodny_ekologicheskiy_marshrut_sestroretskoye_boloto/194482822391/?ll=30.002196%2C60.125092&z=15" },
+  { id: "kotlin", name: "Западный Котлин", place: "Кронштадт, СПб", lat: 60.025682, lon: 29.673712, lenMin: 1.5, lenMax: 1.5, lenText: "1,5 км", time: "полдня с фортом", benches: false, rail: null,
+    short: "Короткий переход между заливами, вышка и форт Шанец. Осенью тропа может быть затоплена.",
+    how: "Электричкой или автобусом до Кронштадта, на машине через дамбу по ЗСД или Приморскому шоссе; в Кронштадте есть парковки.",
+    desc: "Короткий переход через остров от одного залива к другому: смотровая вышка, форт Шанец XIX века, остановка перелётных птиц. Скамейки в описаниях не упомянуты.",
+    warn: "Осенью (октябрь–ноябрь) часть маршрута может быть затоплена.",
+    tags: ["вышка", "форт Шанец", "туалеты"],
+    ymap: "https://yandex.ru/maps/org/peshekhodny_ekologicheskiy_marshrut_zapadny_kotlin/13832160742/?ll=29.673712%2C60.025682&z=16" },
+  { id: "gatchina", name: "Гатчинский экомаршрут", place: "Гатчина, парк «Зверинец»", lat: 59.576843, lon: 30.09751, lenMin: 2.5, lenMax: 2.5, lenText: "2,5 км", time: "около 1 ч", benches: true, rail: "Татьянино, Мариенбург",
+    short: "Парк «Зверинец» рядом с дворцом, 2,5 км, скамейки и мостки.",
+    how: "Электричка с Балтийского вокзала до Татьянино или Мариенбурга, дальше пешком. Из города ходят маршрутки от метро «Московская».",
+    desc: "Петляющая тропа в парке «Зверинец» рядом с Гатчинским дворцом: мостки через речки и скамейки. Указателей почти нет, мостки скользкие после дождя.",
+    tags: ["скамейки", "мостки", "рядом дворец"],
+    ymap: "https://yandex.ru/maps/org/peshekhodny_ekologicheskiy_marshrut_v_gatchine/37069156649/?ll=30.097510%2C59.576843&z=14" },
+  { id: "lindulovo", name: "Линдуловская роща", place: "Всеволожский район", lat: 60.230354, lon: 29.533799, lenMin: 5.5, lenMax: 5.5, lenText: "около 5,5 км", time: "1,5–2 ч", benches: true, rail: "Рощино",
+    short: "Лиственничная роща у реки Рощинки, около 5,5 км, вход платный.",
+    how: "Электричка с Финляндского вокзала до Рощино, дальше около 3 км пешком или на такси.",
+    desc: "Маршрут среди лиственниц, посаженных в XVIII веке для кораблестроения, вдоль реки Рощинки. Беседки, скамейки, остатки Карельского вала и могила Неизвестного Солдата.",
+    warn: "По данным Travelto, вход платный, от 200 ₽.",
+    tags: ["скамейки", "беседки", "платно"] },
+  { id: "gladyshevka", name: "Пороги реки Гладышевки", place: "Заказник «Гладышевский»", lat: 60.25383, lon: 29.409441, lenMin: 10, lenMax: 10, lenText: "около 10 км", time: "2,5–3 ч", benches: true, rail: null,
+    short: "Почти дикая тропа вдоль лососёвой реки, около 10 км, остатки мельницы.",
+    how: "Проще всего стартовать от конного клуба Golden Horses в посёлке Горьковское, там небольшая парковка. Без машины: электричка или автобус до Горьковского шоссе, дальше около 6 км.",
+    desc: "Почти дикая тропа вдоль реки, где выпускают молодь атлантического лосося. Настилы, мосты, скамейки, остатки финской водяной мельницы XIX века. После дождя мокро.",
+    tags: ["скамейки", "мосты", "мельница"],
+    ymap: "https://yandex.ru/maps/org/peshekhodny_ekologicheskiy_marshrut_porogi_reki_gladyshevki/144758371010/?ll=29.409441%2C60.253830&z=14" },
+  { id: "hepoyarvi", name: "Озеро Хепоярви", place: "Токсово, Всеволожский район", lat: 60.166487, lon: 30.550023, lenMin: 10, lenMax: 30, lenText: "10, 20 или 30 км", time: "2–6 ч", benches: false, rail: "Токсово, Кавголово",
+    short: "Круг вокруг озера на 10, 20 или 30 км, без инфраструктуры.",
+    how: "Электричка до Токсово или Кавголово, дальше пешком.",
+    desc: "Круговая тропа вокруг озера с вариантами на 10, 20 и 30 км. Местами идёт по улицам рядом с коттеджами. На длинной версии у Химаколово в межсезонье сыро, нужны треккинговые ботинки. Инфраструктуры нет.",
+    tags: ["несколько вариантов", "без скамеек"],
+    ymap: "https://yandex.ru/maps/org/tropa_zdorovya_vokrug_ozera_khepoyarvi/188463991239/?ll=30.550023%2C60.166487&z=15" },
+  { id: "vyar", name: "Гряда Вярямянселькя (Петяярви)", place: "Приозерский район", lat: 60.621896, lon: 30.096459, lenMin: 11, lenMax: 12.6, lenText: "11–12,6 км", time: "3–4 ч", benches: true, rail: "Петяярви",
+    short: "Кольцо по ледниковой гряде, 11–12,6 км, озеро и старая ГЭС.",
+    how: "Электричка до станции Петяярви, оттуда сразу на тропу.",
+    desc: "Кольцо по ледниковой гряде: сосновые леса, холмы, Лебяжье озеро, бывшая финская ГЭС. Сухие лесные дороги, подходит для велосипеда. Беседки, кострища, туалет у озера. Осенью много грибов.",
+    tags: ["скамейки", "беседки", "туалет", "для велосипеда"],
+    ymap: "https://yandex.ru/maps/org/ekologicheskaya_tropa_gryada_vyaryamyanselkya/129236822014/?ll=30.096459%2C60.621896&z=13" },
+  { id: "yastreb", name: "Ястребиное озеро (тропа Хо Ши Мина)", place: "Приозерский район", lat: 61.145558, lon: 29.758589, lenMin: 8, lenMax: 35, lenText: "8 км до озера, круг до 35 км", time: "целый день", benches: false, rail: "Кузнечное",
+    short: "Тропа к скалам и горе Парнас, 8 км до озера, палаточные стоянки.",
+    how: "Электричка с Финляндского вокзала до Кузнечного, дальше вдоль железной дороги мимо завода и карьера.",
+    desc: "Тропа по Карельскому перешейку к озеру со скалами и горой Парнас. Основной путь понятен, но в глубине леса легко свернуть не туда. Есть палаточные стоянки и места для мангалов, скамеек нет.",
+    tags: ["палатки", "скалы", "без скамеек"],
+    ymap: "https://yandex.ru/maps/org/tropa_kho_shi_mina/133986444336/?ll=29.758589%2C61.145558&z=13" },
+  { id: "monrepo", name: "Монрепо", place: "Выборг", lat: 60.7317, lon: 28.7278, approx: false, lenMin: null, lenMax: null, lenText: "не указана", time: "по желанию", benches: false, rail: "Выборг",
+    short: "Парк вдоль Защитной бухты, извилистые дорожки и корни под ногами.",
+    how: "Электричка с Финляндского вокзала до Выборга, дальше пешком до парка.",
+    desc: "Маршрут проходит по парку вдоль берега Защитной бухты между высоких деревьев. Под ногами часто торчат корни. По пути паромный причал XIX века, лаборатория для боеприпасов 1916 года, лавочки и скульптуры. Место популярное, но парк большой.",
+    tags: ["парк", "скамейки", "история"],
+    q: "Экотропа Монрепо Выборг" },
+  { id: "kiperort", name: "Мыс Киперорт", place: "Выборгский заказник", lat: 60.48, lon: 28.62, approx: true, lenMin: 17, lenMax: 19, lenText: "17–19 км", time: "около 4 ч пешком", benches: null, rail: null,
+    short: "Кольцо по полуострову, 17–19 км, вышки для птиц, парковки и туалеты.",
+    how: "На машине до посёлка Каменка (Выборгский район), парковка у начала тропы. По данным «Делового Петербурга», можно доехать автобусом из Выборга или электричкой до станции Бор, но дальше придётся идти пешком.",
+    desc: "Кольцо по обоим берегам полуострова: каменистый западный и песчаный восточный. Руины батареи Харкяля, арт-объект «Хижина моряка», вышки для наблюдения за птицами. Есть щиты, парковки, туалеты и беседки. Тропа открыта в августе 2023 года.",
+    tags: ["вышки", "парковки", "туалеты", "беседки"],
+    q: "Экотропа Мыс Киперорт Выборгский район" },
+  { id: "kivipark", name: "Каменистая тропа", place: "Заказник «Кивипарк», пос. Чулково", lat: 60.63, lon: 28.9, approx: true, lenMin: 11.8, lenMax: 11.8, lenText: "11,8 км", time: "4–5 ч", benches: null, rail: null,
+    short: "Пешая тропа в заказнике «Кивипарк» недалеко от Выборга, 11,8 км.",
+    how: "Посёлок Чулково, заказник «Кивипарк» недалеко от Выборга. Точный вход смотрите в Яндекс Картах.",
+    desc: "Пешеходный маршрут длиной 11,8 км в заказнике недалеко от Выборга. Открыт в августе 2021 года.",
+    tags: ["заказник"],
+    q: "Экотропа Каменистая тропа Кивипарк Чулково" },
+  { id: "lesnye", name: "Лесные дали", place: "Шалово-Перечицкий заказник, Лужский район", lat: 58.8, lon: 29.5, approx: true, lenMin: 12, lenMax: 12, lenText: "около 12 км", time: "4–5 ч", benches: null, rail: null,
+    short: "Холмистый сосновый бор, около 12 км, ходить советуют с мая по октябрь.",
+    how: "Заказник в Лужском районе на юге области. Точный вход смотрите в Яндекс Картах.",
+    desc: "Круговая тропа по песчаным холмам мимо маленьких озёр, болот и небольших ущелий. Здесь Шишкин писал эскизы к «Лесной глуши». Есть разметка на деревьях и информационные стенды. Ходить советуют с мая по октябрь.",
+    tags: ["холмы", "разметка", "стенды"],
+    q: "Экотропа Лесные дали Шалово-Перечицкий заказник" },
+  { id: "ladoga", name: "Ладожские берега", place: "Коккоревский заказник, Всеволожский район", lat: 60.075, lon: 31.05, approx: true, lenMin: 5, lenMax: 5.7, lenText: "5–5,7 км", time: "около 1,5 ч", benches: null, rail: null,
+    short: "Песчаный берег Ладоги, 5–5,7 км, настил к болоту и вышка.",
+    how: "На машине до деревни Коккорево, парковка у бывшего пионерлагеря «Ладожец», дальше пешком по дороге или вдоль берега. Из города доехать можно электричкой до станции «Ладожское озеро», но потом идти около 2–2,5 часов.",
+    desc: "Тропа вдоль песчаного берега Ладоги. Деревянный настил подводит к Коккоревскому болоту, по пути руины 101-й батареи и орнитологическая вышка с видом на побережье. Хорошо подходит для прогулки с детьми.",
+    tags: ["вышка", "настил", "с детьми"],
+    q: "Экотропа Ладожские берега Коккоревский заказник" },
+  { id: "lukomorye", name: "У Лукоморья", place: "Парк «Ближние дубки», СПб", lat: 59.99, lon: 30.08, approx: true, lenMin: 2.2, lenMax: 2.2, lenText: "около 2,2 км", time: "около 1 ч", benches: null, rail: "Лисий Нос, Ольгино",
+    short: "Детская тропа со сказочными стендами, около 2,2 км, старый дуб.",
+    how: "Электричка с Финляндского вокзала до Лисьего Носа или Ольгино, автобусы от «Старой Деревни», есть несколько парковок.",
+    desc: "Тропа в старинном парке между Ольгино и Лисьим Носом. Тематические стенды про Лешего, Водяного и Бабу-Ягу, задания с вопросами. Самый старый дуб заказника, батарея времён войны, место гнездования птиц.",
+    tags: ["для детей", "старый дуб"],
+    q: "Экотропа У Лукоморья Ближние дубки" },
+  { id: "gluhar", name: "Глухарка", place: "Приморский район, СПб", lat: 60.0, lon: 30.21, approx: true, lenMin: null, lenMax: null, lenText: "не указана", time: "по желанию", benches: true, rail: null,
+    short: "Деревянная тропа с поручнями и скамейками вдоль реки.",
+    how: "Набережная реки Глухарки в Приморском районе, около 10 км от центра города.",
+    desc: "Деревянная тропа с поручнями, скамейками и смотровыми площадками на набережной реки. Есть беседки, качели, детские и спортивные площадки. Можно кормить уток, летом катаются на сап-бордах.",
+    tags: ["скамейки", "поручни", "площадки"],
+    q: "Экотропа Глухарка набережная реки Глухарки" },
+  { id: "koltushi", cat: "nature", name: "Колтушские высоты", place: "Всеволожский район", lat: 59.93, lon: 30.6461, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Камовые холмы до 78 м, шесть озёр и старые хвойные леса. Костры и стоянки запрещены.",
+    how: "Возвышенность южнее Всеволожска, в источнике упомянуто шоссе Всеволожск — Колтуши. Хороших описаний входа в источниках нет, ориентируйтесь по Яндекс Картам.",
+    desc: "Камовое плато длиной около 25 км с холмами до 78 м, озёрами и болотами. В охраняемой северной части хвойные леса старше 100 лет, шесть озёр (крупнейшие Ждановские), торфяник у озера Третье Токкаревское, около 110 видов птиц. Бывать можно, но запрещены рубка, костры, стоянки и проезд техники вне дорог.",
+    warn: "Отметка стоит в центре всей возвышенности. Охраняемая часть лежит в её северной половине.",
+    tags: ["камы", "озёра", "хвойные леса", "костры запрещены"],
+    q: "Колтушские высоты памятник природы" },
+  { id: "dudergof", cat: "nature", name: "Дудергофские высоты", place: "Красносельский район, СПб и Ленобласть", lat: 59.698, lon: 30.134, lenMin: 2.5, lenMax: 2.5, lenText: "2,5 км (экомаршрут)", time: "около 1,5 ч", benches: true, rail: "Дудергоф",
+    short: "Ореховая гора (176 м), высшая точка СПб. Экомаршрут 2,5 км со скамейками и лестницами.",
+    how: "Маршрут начинается от станции Дудергоф.",
+    desc: "Ледниковые холмы с крутыми склонами и смешанным лесом. Экологический маршрут 2,5 км идёт по Вороньей и Ореховой горам: обзорные площадки, скамейки, лестницы, стенды. На вершине Ореховой горы памятник героям войны, внизу Дудергофское озеро и Театральная долина.",
+    tags: ["скамейки", "лестницы", "обзорные площадки", "176 м"] },
+  { id: "priorat", cat: "park", name: "Приоратский парк", place: "Гатчина", lat: 59.5514, lon: 30.1194, lenMin: null, lenMax: null, lenText: "дорожки более 16 км", time: "по желанию", benches: null, rail: null,
+    short: "Лесопарк 154 га с Приоратским дворцом на берегу Чёрного озера.",
+    how: "Электричка с Балтийского вокзала до Гатчины, дальше пешком или городским транспортом.",
+    desc: "Пейзажный лесопарк более 154 га с двумя озёрами, Чёрным и Филькиным. На берегу Чёрного озера стоит Приоратский дворец (1797–1799). Общая длина дорожек больше 16 км. В войну парк сильно пострадал, восстановление идёт с 1970-х годов.",
+    tags: ["озёра", "дворец", "16 км дорожек"] },
+  { id: "gatchina-park", cat: "park", name: "Гатчинский дворцовый парк", place: "Гатчина", lat: 59.563, lon: 30.1, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Большой пейзажный парк вокруг дворца с Белым озером, островами и павильонами.",
+    how: "Электричка с Балтийского вокзала до Гатчины, дальше пешком до дворца.",
+    desc: "Пейзажный парк вокруг Гатчинского дворца: Белое озеро с островами, павильоны и мосты. Рядом лесной парк «Зверинец» с экомаршрутом и Приоратский парк.",
+    tags: ["озеро", "павильоны", "дворец"],
+    q: "Гатчинский дворцовый парк" },
+  { id: "pavlovsk", cat: "park", name: "Павловский парк", place: "Павловск", lat: 59.683, lon: 30.445, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: "Павловск",
+    short: "Один из крупнейших пейзажных парков Европы вокруг Павловского дворца.",
+    how: "Электричка с Витебского вокзала до станции Павловск.",
+    desc: "Огромный пейзажный парк вокруг Павловского дворца с рекой Славянкой, прудами, аллеями и павильонами. Подходит для целого дня неспешных прогулок.",
+    tags: ["пруды", "аллеи", "дворец"],
+    q: "Павловский парк" },
+  { id: "tsarskoe", cat: "park", name: "Екатерининский парк", place: "Пушкин (Царское Село)", lat: 59.716, lon: 30.395, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: "Царское Село",
+    short: "Регулярная и пейзажная части парка у Екатерининского дворца, Большой пруд.",
+    how: "Электричка с Витебского вокзала до станции Царское Село, дальше пешком или автобусом.",
+    desc: "Парк у Екатерининского дворца с регулярной и пейзажной частями, Большим прудом, павильонами и мостами. Рядом Александровский парк.",
+    tags: ["пруд", "павильоны", "дворец"],
+    q: "Екатерининский парк Пушкин" },
+  { id: "peterhof", cat: "park", name: "Петергоф: Нижний парк и «Александрия»", place: "Петергоф", lat: 59.884, lon: 29.905, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: "Новый Петергоф",
+    short: "Нижний парк с фонтанами и пейзажная «Александрия» с неоготической капеллой.",
+    how: "Электричка с Балтийского вокзала до станции Новый Петергоф, дальше пешком или автобусом.",
+    desc: "Нижний парк на берегу залива с фонтанами и парк «Александрия» с неоготической капеллой. Фонтаны работают сезонно.",
+    warn: "Фонтаны работают сезонно, осенью их обычно уже отключают.",
+    tags: ["залив", "фонтаны сезонно", "капелла"],
+    q: "Нижний парк Петергоф" },
+  { id: "ropsha", cat: "park", name: "Ропшинский парк", place: "Ломоносовский район", lat: 59.737, lon: 29.88, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Пейзажный парк с прудами и Ропшинским дворцом в селе Ропша.",
+    how: "Село Ропша к юго-западу от Петербурга, удобнее добираться на машине.",
+    desc: "Старинный пейзажный парк с прудами при Ропшинском дворце. Спокойное место без больших толп.",
+    tags: ["пруды", "дворец"],
+    q: "Ропшинский парк" },
+  { id: "oranienbaum", cat: "park", name: "Ораниенбаумский парк", place: "Ломоносов", lat: 59.917, lon: 29.764, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: "Ораниенбаум I",
+    short: "Дворцово-парковый ансамбль с Китайским дворцом и Катальной горкой.",
+    how: "Электричка с Балтийского вокзала до станции Ораниенбаум I, дальше пешком.",
+    desc: "Дворцово-парковый ансамбль в Ломоносове: Китайский дворец, павильон Катальная горка, сады и пруды.",
+    tags: ["дворцы", "павильоны", "сады"],
+    q: "Ораниенбаумский парк Ломоносов" },
+  { id: "lembolovo", cat: "nature", name: "Лемболовская возвышенность", place: "Карельский перешеек", lat: 60.36, lon: 30.1075, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Холмы из морены и камов в центре Карельского перешейка, смешанный лес и три заказника.",
+    how: "Отметка стоит в центре возвышенности, она большая. Подъезд зависит от места: посёлок Лемболово, горнолыжные центры и другие. Смотрите по Яндекс Картам.",
+    desc: "Возвышенность из морены и камов в центре Карельского перешейка с террасами древних озёр. Смешанный лес, три охраняемых заказника, отсюда текут реки к заливу, Неве и Ладоге. Популярна для отдыха и спорта: на севере горнолыжные центры «Игора» и «Коробицыно», на юге «Охта-парк».",
+    tags: ["камы", "смешанный лес", "заказники", "водораздел"] },
+  { id: "kivisurya", cat: "nature", name: "Гора Кивисюрья", place: "Лемболовская возвышенность", lat: 60.4887, lon: 30.1985, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Высшая точка Лемболовской возвышенности, около 204 м.",
+    how: "Координаты вершины взяты из Википедии. Подход и парковку смотрите в Яндекс Картах.",
+    desc: "Высшая точка Лемболовской возвышенности, 203,7 м над уровнем моря. Старые источники называют высоту от 201 до 206 м.",
+    tags: ["вершина", "204 м"] },
+  { id: "yuntolovo", cat: "nature", name: "Юнтоловский заказник", place: "Приморский район, СПб", lat: 60.0147, lon: 30.18, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Заказник 977 га: сфагновые болота, сосновые и берёзовые леса, скопа и более 100 видов птиц.",
+    how: "Западная часть Приморского района СПб. Режим особой охраны: на территорию лучше заходить по существующим дорогам. На набережной реки Глухарки есть одноимённая экотропа.",
+    desc: "Государственный природный заказник около 977 га: Лахтинский разлив, реки Чёрная, Каменка, Юнтоловка и Глухарка и большая часть Лахтинского болота. Около 380 видов сосудистых растений, больше 100 видов гнездящихся птиц, среди них скопа. Нельзя строить, охотиться, рубить деревья и ездить на технике.",
+    tags: ["болота", "птицы", "особая охрана"] },
+  { id: "toksovskie", cat: "nature", name: "Токсовские высоты", place: "Токсово, Всеволожский район", lat: 60.1497, lon: 30.5122, approx: true, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: "Токсово, Кавголово",
+    short: "Камовая гряда между озером Хепоярви и Кавголовским озером.",
+    how: "Электричка до Токсово или Кавголово. Отметка стоит у посёлка Токсово.",
+    desc: "Холмистая камовая гряда шириной до 2 км между озёрами Хепоярви и Кавголовским. Особо охраняемая природная территория, в её составе Токсовско-Кавголовское террасированное плато площадью 100 га. Рядом круговая тропа вокруг Хепоярви.",
+    tags: ["камы", "озёра"],
+    q: "Токсовские высоты" },
+  { id: "sosnovka", cat: "park", name: "Парк «Сосновка»", place: "Выборгский район, СПб", lat: 60.0228, lon: 30.3517, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Парк 302 га: благоустроенные и дикие участки, один из крупнейших в городе.",
+    how: "В черте города, добраться можно городским транспортом.",
+    desc: "Один из крупнейших парков Петербурга, 302 га. Часть парка благоустроена, часть осталась дикой. В XIX веке здесь гуляли и даже дрались на дуэлях, в том числе Лермонтов в 1840 году.",
+    tags: ["лес", "в городе"] },
+  { id: "kurgalsky", cat: "nature", name: "Кургальский заказник", place: "Кингисеппский район", lat: 59.7, lon: 28.15, lenMin: null, lenMax: null, lenText: "—", time: "по желанию", benches: null, rail: null,
+    short: "Огромный заказник около 600 км²: полуостров, острова и акватория, тюлени и редкие птицы.",
+    how: "Примерно в 45 км северо-западнее Кингисеппа. Отметка стоит в центре заказника.",
+    desc: "Комплексный заказник около 600 км², почти две трети из которых акватория: Кургальский полуостров, острова, воды Финского и Нарвского заливов и Лужской губы. Около 750 видов сосудистых растений, около 250 видов птиц, серые тюлени и кольчатая нерпа. Дуб, ясень и вязы растут здесь почти на северной границе своего ареала.",
+    warn: "Больше 40% территории закрыто строгим режимом. Об экотропах и разрешениях в источнике сведений нет, уточняйте перед поездкой.",
+    tags: ["побережье", "тюлени", "птицы", "строгий режим"] }
+];
+TRAILS.forEach(function (t) { if (t.approx === undefined) t.approx = false; if (!t.cat) t.cat = "trail"; });
+var CAT_NAME = { trail: "экотропа", nature: "памятник природы", park: "парк" };
+
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function haversine(a, b) {
+  var R = 6371, rad = Math.PI / 180;
+  var dLat = (b.lat - a.lat) * rad, dLon = (b.lon - a.lon) * rad;
+  var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+TRAILS.forEach(function (t) {
+  t.dist = Math.round(haversine(PSP, t));
+  t.open = t.ymap || (t.approx || t.q ? "https://yandex.ru/maps/?text=" + encodeURIComponent(t.q) : "https://yandex.ru/maps/?ll=" + t.lon + "%2C" + t.lat + "&z=14&pt=" + t.lon + "," + t.lat + ",pm2gnm");
+  if (!t.ymap && !t.q) t.open = "https://yandex.ru/maps/?ll=" + t.lon + "%2C" + t.lat + "&z=14&pt=" + t.lon + "," + t.lat + ",pm2gnm";
+  t.openLabel = (t.ymap || !t.q) ? "Открыть в Яндекс Картах" : "Найти в Яндекс Картах";
+  t.route = t.q ? "https://yandex.ru/maps/?rtext=~" + encodeURIComponent(t.q) : "https://yandex.ru/maps/?rtext=~" + t.lat + "%2C" + t.lon;
+});
+
+function X(lon) { return (lon - 28.3) * 100; }
+function Y(lat) { return (61.35 - lat) * 200; }
+function pts(arr) { return arr.map(function (p) { return X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1); }).join(" "); }
+
+var GULF = [[27.0,60.45],[28.45,60.42],[28.58,60.4],[28.62,60.52],[28.7,60.66],[28.76,60.71],[28.86,60.67],[28.92,60.56],[28.95,60.46],[29.1,60.3],[29.4,60.22],[29.7,60.19],[29.85,60.165],[29.96,60.1],[30.02,60.04],[30.2,59.99],[30.3,59.95],[30.3,59.93],[30.2,59.9],[30.0,59.87],[29.9,59.89],[29.77,59.92],[29.58,59.94],[29.3,59.9],[29.0,59.88],[28.6,59.8],[28.3,59.72],[28.0,59.77],[27.0,59.62]];
+var KOTLIN = [[29.64,60.03],[29.85,60.015],[30.05,60.0],[30.05,59.99],[29.85,60.0],[29.64,60.02]];
+var LADOGA = [[33.8,59.6],[31.3,59.9],[31.03,59.95],[31.07,60.07],[30.95,60.2],[30.75,60.4],[30.55,60.6],[30.4,60.85],[30.12,61.04],[30.3,61.3],[33.8,61.3]];
+var CITIES = [
+  { name: "Санкт-Петербург", lat: 59.9343, lon: 30.3351, big: true },
+  { name: "Выборг", lat: 60.7094, lon: 28.7527 },
+  { name: "Приозерск", lat: 61.0376, lon: 30.1266 },
+  { name: "Гатчина", lat: 59.5763, lon: 30.1281 },
+  { name: "Луга", lat: 58.7386, lon: 29.8453 }
+];
+var VIEWS = {
+  all: [27.9, 31.4, 58.65, 61.3],
+  isthmus: [28.5, 31.2, 59.6, 61.25],
+  spb: [29.3, 30.8, 59.45, 60.4]
+};
+
+var NS = "http://www.w3.org/2000/svg";
+var svg = document.getElementById("map");
+var tip = document.getElementById("tip");
+var mapbox = document.getElementById("mapbox");
+var vb = { x: 0, y: 0, w: 310, h: 550 };
+var k = 1;
+var scalers = [];
+var pinEls = {};
+var state = { cat: "all", len: "all", bench: false, rail: false, sort: "dist", sel: null };
+var tipTimer = null, tipFor = null;
+
+function mk(tag, attrs, parent) {
+  var e = document.createElementNS(NS, tag);
+  for (var a in attrs) e.setAttribute(a, attrs[a]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+function buildMap() {
+  svg.innerHTML = "";
+  mk("rect", { x: -3000, y: -3000, width: 6000, height: 6000, fill: "var(--land)" }, svg);
+  var shapes = [[GULF, true], [LADOGA, true], [KOTLIN, false]];
+  shapes.forEach(function (s) {
+    var p = mk("polygon", { points: pts(s[0]), fill: s[1] ? "var(--water)" : "var(--land)", stroke: "var(--line)" }, svg);
+    scalers.push(function () { p.setAttribute("stroke-width", 1 * k); });
+  });
+  function label(text, lon, lat, size, cls, dx, dy, weight) {
+    var t = mk("text", { "class": cls }, svg);
+    t.textContent = text;
+    if (weight) t.setAttribute("font-weight", weight);
+    scalers.push(function () {
+      t.setAttribute("x", X(lon) + (dx || 0) * k);
+      t.setAttribute("y", Y(lat) + (dy || 0) * k);
+      t.setAttribute("font-size", size * k);
+      if (cls === "svgtext") t.setAttribute("stroke-width", 3 * k);
+    });
+  }
+  label("Финский залив", 28.55, 60.12, 13, "svgmuted");
+  label("Ладожское озеро", 31.15, 60.65, 13, "svgmuted");
+  CITIES.forEach(function (c) {
+    var r = mk("rect", { fill: "var(--ink)" }, svg);
+    var s = c.big ? 4.5 : 3;
+    scalers.push(function () {
+      r.setAttribute("x", X(c.lon) - s * k); r.setAttribute("y", Y(c.lat) - s * k);
+      r.setAttribute("width", 2 * s * k); r.setAttribute("height", 2 * s * k);
+    });
+    label(c.name, c.lon, c.lat, c.big ? 12 : 11, "svgtext", s + 4, 4, c.big ? 600 : 500);
+  });
+  TRAILS.forEach(function (t) {
+    var g = mk("g", { "class": "pin cat-" + t.cat + (t.approx ? " approx" : ""), tabindex: "0", role: "button", "aria-label": t.name, "data-id": t.id }, svg);
+    var hit = mk("circle", { fill: "transparent" }, g);
+    var ring = mk("circle", { "class": "ring" }, g);
+    var dot = mk("circle", { "class": "dot" }, g);
+    var cx = X(t.lon), cy = Y(t.lat);
+    [hit, ring, dot].forEach(function (c) { c.setAttribute("cx", cx); c.setAttribute("cy", cy); });
+    scalers.push(function () {
+      hit.setAttribute("r", 14 * k);
+      ring.setAttribute("r", 10 * k); ring.setAttribute("stroke-width", 1.8 * k);
+      dot.setAttribute("r", 5.5 * k); dot.setAttribute("stroke-width", (t.approx ? 2 : 1.6) * k);
+      dot.setAttribute("stroke-dasharray", t.approx && state.sel !== t.id ? (3 * k) + " " + (2 * k) : "none");
+    });
+    pinEls[t.id] = g;
+  });
+  var sb = mk("g", {}, svg);
+  var sbl = mk("line", { stroke: "var(--ink)" }, sb);
+  var sbt = mk("text", { "class": "svgmuted", style: "font-style:normal" }, sb);
+  sbt.textContent = "20 км";
+  scalers.push(function () {
+    var x0 = vb.x + 14 * k, y0 = vb.y + vb.h - 16 * k;
+    sbl.setAttribute("x1", x0); sbl.setAttribute("x2", x0 + 36); sbl.setAttribute("y1", y0); sbl.setAttribute("y2", y0);
+    sbl.setAttribute("stroke-width", 2 * k);
+    sbt.setAttribute("x", x0 + 36 + 6 * k); sbt.setAttribute("y", y0 + 4 * k); sbt.setAttribute("font-size", 11 * k);
+  });
+}
+
+function applyView() {
+  var cw = svg.clientWidth || 600, ch = svg.clientHeight || 600;
+  vb.h = vb.w * ch / cw;
+  k = vb.w / cw;
+  svg.setAttribute("viewBox", vb.x + " " + vb.y + " " + vb.w + " " + vb.h);
+  scalers.forEach(function (f) { f(); });
+}
+function fit(box) {
+  var cw = svg.clientWidth || 600, ch = svg.clientHeight || 600, a = cw / ch;
+  var x1 = X(box[0]), x2 = X(box[1]), y1 = Y(box[3]), y2 = Y(box[2]);
+  var w = x2 - x1, h = y2 - y1;
+  if (w / h > a) h = w / a; else w = h * a;
+  vb.x = (x1 + x2) / 2 - w / 2; vb.y = (y1 + y2) / 2 - h / 2; vb.w = w;
+  applyView();
+}
+function zoomAt(f, px, py) {
+  var cw = svg.clientWidth, ch = svg.clientHeight;
+  var nw = Math.min(520, Math.max(14, vb.w * f));
+  var real = nw / vb.w;
+  var wx = vb.x + (px / cw) * vb.w, wy = vb.y + (py / ch) * vb.h;
+  vb.x = wx - (px / cw) * nw; vb.y = wy - (py / ch) * (nw * ch / cw); vb.w = nw;
+  applyView();
+  hideTip(true);
+}
+
+function matches(t) {
+  if (state.cat !== "all" && t.cat !== state.cat) return false;
+  if (state.len !== "all" && t.lenMin === null) return false;
+  if (state.len === "short" && !(t.lenMin <= 5)) return false;
+  if (state.len === "mid" && !(t.lenMin <= 15 && t.lenMax >= 5)) return false;
+  if (state.len === "long" && !(t.lenMax >= 15)) return false;
+  if (state.bench && t.benches !== true) return false;
+  if (state.rail && !t.rail) return false;
+  return true;
+}
+function visible() {
+  var arr = TRAILS.filter(matches);
+  arr.sort(function (a, b) {
+    if (state.sort === "len") {
+      var la = a.lenMin === null ? 999 : a.lenMin, lb = b.lenMin === null ? 999 : b.lenMin;
+      return (la - lb) || (a.dist - b.dist);
+    }
+    return a.dist - b.dist;
+  });
+  return arr;
+}
+
+function card(t) {
+  return '<article class="card' + (state.sel === t.id ? " sel" : "") + '" data-id="' + t.id + '" id="c-' + t.id + '" tabindex="-1">' +
+    '<header><h2>' + esc(t.name) + '</h2><span class="place">' + esc(t.place) + '</span></header>' +
+    '<div class="facts"><span>Длина <b>' + esc(t.lenText) + '</b></span><span>Время <b>' + esc(t.time) + '</b></span><span>От центра <b>~' + t.dist + ' км</b> по прямой</span></div>' +
+    '<p>' + esc(t.desc) + '</p>' +
+    (t.warn ? '<p class="warn">' + esc(t.warn) + '</p>' : "") +
+    (t.approx ? '<p class="warn">Отметка на схеме примерная: в источниках нет координат. Точное место покажет поиск в Яндекс Картах.</p>' : "") +
+    '<p class="how"><b>Как добраться.</b> ' + esc(t.how) + '</p>' +
+    '<div class="tags"><span class="tag" style="color:var(--ink)">' + CAT_NAME[t.cat] + '</span>' + (t.rail ? '<span class="tag">станция: ' + esc(t.rail) + '</span>' : "") + t.tags.map(function (g) { return '<span class="tag">' + esc(g) + '</span>'; }).join("") + '</div>' +
+    '<div class="actions"><a class="btn primary" href="' + t.open + '" target="_blank" rel="noopener">' + t.openLabel + '</a>' +
+    '<a class="btn" href="' + t.route + (t.q ? "" : "") + '&rtt=auto" target="_blank" rel="noopener">Маршрут на машине</a>' +
+    '<a class="btn" href="' + t.route + '&rtt=mt" target="_blank" rel="noopener">На транспорте</a></div></article>';
+}
+
+function drawList() {
+  var arr = visible();
+  document.getElementById("count").textContent = "Показано " + arr.length + " из " + TRAILS.length;
+  document.getElementById("list").innerHTML = arr.length ? arr.map(card).join("") : '<p class="empty">Под эти условия троп нет. Снимите один из фильтров.</p>';
+  var vis = {};
+  arr.forEach(function (t) { vis[t.id] = true; });
+  TRAILS.forEach(function (t) { pinEls[t.id].classList.toggle("off", !vis[t.id]); });
+}
+
+function syncSel() {
+  TRAILS.forEach(function (t) { pinEls[t.id].classList.toggle("sel", state.sel === t.id); });
+  scalers.forEach(function (f) { f(); });
+  document.querySelectorAll(".card").forEach(function (c) { c.classList.toggle("sel", c.getAttribute("data-id") === state.sel); });
+}
+function select(id, scroll) {
+  state.sel = id;
+  syncSel();
+  if (scroll) {
+    var el = document.getElementById("c-" + id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+function showTip(t) {
+  clearTimeout(tipTimer);
+  tipFor = t.id;
+  tip.innerHTML = '<strong>' + esc(t.name) + '</strong><span class="meta">' + esc(t.lenText) + ' · ' + esc(t.place) + (t.approx ? ' · отметка примерная' : '') + '</span>' +
+    '<span>' + esc(t.short) + '</span>' +
+    '<a class="btn primary" href="' + t.open + '" target="_blank" rel="noopener">' + t.openLabel + '</a>';
+  tip.hidden = false;
+  var r = svg.getBoundingClientRect(), b = mapbox.getBoundingClientRect();
+  var px = r.left - b.left + (X(t.lon) - vb.x) / k, py = r.top - b.top + (Y(t.lat) - vb.y) / k;
+  var w = tip.offsetWidth, h = tip.offsetHeight;
+  var left = Math.min(Math.max(px - w / 2, 8), b.width - w - 8);
+  var top = py - h - 12;
+  if (top < 8) top = py + 12;
+  tip.style.left = left + "px";
+  tip.style.top = top + "px";
+}
+function hideTip(now) {
+  clearTimeout(tipTimer);
+  if (now) { tip.hidden = true; tipFor = null; return; }
+  tipTimer = setTimeout(function () { tip.hidden = true; tipFor = null; }, 350);
+}
+
+var byId = {};
+TRAILS.forEach(function (t) { byId[t.id] = t; });
+
+svg.addEventListener("pointerover", function (e) {
+  var g = e.target.closest && e.target.closest(".pin");
+  if (g && e.pointerType === "mouse" && !dragging) { pinEls[g.getAttribute("data-id")].classList.add("hov"); showTip(byId[g.getAttribute("data-id")]); }
+});
+svg.addEventListener("pointerout", function (e) {
+  var g = e.target.closest && e.target.closest(".pin");
+  if (g) { g.classList.remove("hov"); hideTip(false); }
+});
+tip.addEventListener("pointerenter", function () { clearTimeout(tipTimer); });
+tip.addEventListener("pointerleave", function () { hideTip(false); });
+svg.addEventListener("focusin", function (e) {
+  var g = e.target.closest && e.target.closest(".pin");
+  if (g) showTip(byId[g.getAttribute("data-id")]);
+});
+svg.addEventListener("click", function (e) {
+  if (moved) return;
+  var g = e.target.closest && e.target.closest(".pin");
+  if (g) { var t = byId[g.getAttribute("data-id")]; select(t.id, true); showTip(t); }
+  else hideTip(true);
+});
+svg.addEventListener("keydown", function (e) {
+  var g = e.target.closest && e.target.closest(".pin");
+  if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); var t = byId[g.getAttribute("data-id")]; select(t.id, true); showTip(t); }
+  if (e.key === "Escape") hideTip(true);
+});
+
+var dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+svg.addEventListener("pointerdown", function (e) {
+  if (e.button !== 0) return;
+  dragging = true; moved = false; sx = e.clientX; sy = e.clientY; ox = vb.x; oy = vb.y;
+});
+window.addEventListener("pointermove", function (e) {
+  if (!dragging) return;
+  var dx = e.clientX - sx, dy = e.clientY - sy;
+  if (!moved && Math.abs(dx) + Math.abs(dy) < 5) return;
+  if (!moved) { moved = true; svg.classList.add("drag"); hideTip(true); }
+  vb.x = ox - dx * k; vb.y = oy - dy * k;
+  applyView();
+});
+window.addEventListener("pointerup", function () {
+  if (!dragging) return;
+  dragging = false; svg.classList.remove("drag");
+  setTimeout(function () { moved = false; }, 0);
+});
+svg.addEventListener("wheel", function (e) {
+  e.preventDefault();
+  var r = svg.getBoundingClientRect();
+  zoomAt(Math.pow(1.0018, e.deltaY), e.clientX - r.left, e.clientY - r.top);
+}, { passive: false });
+
+document.getElementById("zIn").addEventListener("click", function () { zoomAt(0.7, svg.clientWidth / 2, svg.clientHeight / 2); });
+document.getElementById("zOut").addEventListener("click", function () { zoomAt(1.4, svg.clientWidth / 2, svg.clientHeight / 2); });
+document.querySelectorAll("[data-view]").forEach(function (b) {
+  b.addEventListener("click", function () { hideTip(true); fit(VIEWS[b.getAttribute("data-view")]); });
+});
+document.getElementById("list").addEventListener("click", function (e) {
+  if (e.target.closest("a")) return;
+  var c = e.target.closest(".card");
+  if (c) select(c.getAttribute("data-id"), false);
+});
+document.getElementById("list").addEventListener("pointerover", function (e) {
+  var c = e.target.closest(".card");
+  Object.keys(pinEls).forEach(function (id) { pinEls[id].classList.toggle("hov", !!c && c.getAttribute("data-id") === id); });
+});
+document.getElementById("list").addEventListener("pointerleave", function () {
+  Object.keys(pinEls).forEach(function (id) { pinEls[id].classList.remove("hov"); });
+});
+function refresh() { drawList(); }
+document.getElementById("catSeg").addEventListener("change", function (e) { state.cat = e.target.value; refresh(); });
+document.getElementById("lenSeg").addEventListener("change", function (e) { state.len = e.target.value; refresh(); });
+document.getElementById("fBench").addEventListener("change", function (e) { state.bench = e.target.checked; refresh(); });
+document.getElementById("fRail").addEventListener("change", function (e) { state.rail = e.target.checked; refresh(); });
+document.getElementById("sort").addEventListener("change", function (e) { state.sort = e.target.value; refresh(); });
+var rz;
+window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { applyView(); }, 80); });
+
+document.getElementById("copyMail").addEventListener("click", function () {
+  var note = document.getElementById("copyNote");
+  function fallback() {
+    var sel = window.getSelection(), r = document.createRange();
+    r.selectNodeContents(document.getElementById("mailAddr"));
+    sel.removeAllRanges(); sel.addRange(r);
+    note.textContent = "Адрес выделен, нажмите Ctrl+C";
+  }
+  try {
+    navigator.clipboard.writeText("suetekh@gmail.com").then(function () { note.textContent = "Адрес скопирован"; }, fallback);
+  } catch (err) { fallback(); }
+});
+
+buildMap();
+drawList();
+fit(VIEWS.all);
+</script>
+
+</body></html>
